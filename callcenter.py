@@ -1,62 +1,99 @@
-from abc import ABCMeta, abstractmethod
-
-class CallCenter():
-
-    def __init__ (self, agents=None):
-        self.agents = list()
-        if agents is not None:
-            self.agents += agents
-
-    
-    def _getCapacity(self, schedules: str):
-        if len(self.agents) > 0:
-            print('only %s agents can accept calls during %s' %(str(len(self.agents) * 80 /100), schedules))
-        else:
-            raise Exception('Call center has no agents')
+from mockData import create_customer, Agent
+import time
+import numpy as np
 
 
-class Chair(metaclass=ABCMeta):
+customers = create_customer()
 
-    # using ABCMeta as the metaclass allows the lint to raise an error when the object is instantiated
-    # instead of waiting until the abstract method is being called
+f = open('listOf50States.txt', 'r')
+states = f.read().replace(' ','').split(',')
 
-    @abstractmethod # defined in the base class but does not provide any implementation
-    def get_dimensions(self):
-        '''the chair interface'''
+agents = [
+    {
+        'id': 1,
+        'age': [18,30],
+        'state': states[:10],
+        'timestamp': 0
+    },
+    {
+        'id': 2,
+        'age': [31,50],
+        'state': states[11:30],
+        'timestamp': 0
+    },
+    {
+        'id': 3,
+        'age': [31,50],
+        'state': states[11:30],
+        'timestamp': 0
+    },
+    {
+        'id': 4,
+        'age': [51,70],
+        'state': states[31:40],
+        'timestamp': 0
+    },
+    {
+        'id': 5,
+        'age': [51,70],
+        'state': states[31:40],
+        'timestamp': 0
+    },
+    {
+        'id': 6,
+        'age': [71,90],
+        'state': states[41:50],
+        'timestamp': 0
+    }
+]
 
-class BigChair(Chair):
+def match(customer, agents):
 
-    def __init__ (self):
-        self.height = 80    
-        self.width = 80
-        self.length = 80
+    return list(filter(lambda agent: agent['age'][0] <= customer.age and agent['age'][1] >= customer.age, agents))
 
-    def get_dimensions(self):
-        return {'height': self.height, 'width': self.width, 'length': self.length}
 
-class SmallChair(Chair):
+def call_center(customers, agents):
 
-    def __init__ (self):
-        self.height = 70    
-        self.width = 70
-        self.length = 70
+    call_back_customers = []
 
-    def get_dimensions(self):
-        return {'height': self.height, 'width': self.width, 'length': self.length}
-    
-class ChairFactory:
+    for _ in range(19):
+        current_customer = next(customers)
+        matching_agents = match(current_customer, agents)
+        #print(matching_agents)
+        
+        if len(matching_agents) > 1: # if there more than 1 matching agent, randomly select one
+            random_number = np.random.randint(low=0, high=len(matching_agents)-1, size=1,dtype=int)[0]
+            
+            random_timeout = np.random.randint(low=50, high=300, size=1, dtype=int)[0]
+            print(random_timeout)
+            selected_agent = matching_agents[random_number]
+            # if the current timestamp of the agent is less than timestamp now in epoch format, the agent 
+            if selected_agent['timestamp'] < int(round(time.time() * 1000)) and selected_agent['timestamp'] > 0:
+                print('agent is busy')
+                call_back_customers.append(current_customer)
+            else:
+            # set the timeout of this agent
+                selected_agent['timestamp'] = int(round(time.time() * 1000)) + random_timeout
 
-    @staticmethod # static method belongs to a class but doesn't use the object itself
-    def get_chair(chairtype):
-        try:
-            if chairtype == 'BigChair':
-                return BigChair()
-            elif chairtype == 'SmallChair':
-                return SmallChair()
-            raise AssertionError('Chair not found')
-                
-        except AssertionError as _e:
-            print(_e)
+    print(call_back_customers)
 
-bigchair = ChairFactory.get_chair('BigChair')
-print(bigchair.get_dimensions())
+
+call_center(customers, agents)
+
+
+# Get a list of agents filtered by the attributes
+# available_list = filter(lambda agent: agents['state'] == , agents)
+
+# The function needs to 
+
+'''
+    filter based on two criteria
+    1. attribute matches
+    2. current timestamp > timeout attribute
+
+    list of available based on attributes
+    length of list
+    use Random module to generate a random number
+    pick that agent
+    reset the timeout based on 50 and 300 miliseconds 
+'''
