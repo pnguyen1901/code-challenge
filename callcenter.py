@@ -1,8 +1,9 @@
-from mockData import Agent, Customer
+from dataModels import Agent, Customer
 import time
 import numpy as np
 from faker import Faker
 from functools import reduce
+import pandas as pd
 
 
 class CallCenter:
@@ -12,6 +13,7 @@ class CallCenter:
         self.noOfAgents = noOfAgents
         self.fake_data = Faker()
     
+
     @staticmethod
     def __match(customer, agents):
 
@@ -38,6 +40,7 @@ class CallCenter:
             
             yield customer
 
+
     def __createAgent(self):
 
         f = open('listOf50States.txt', 'r')
@@ -56,15 +59,35 @@ class CallCenter:
             yield agent
 
 
+    def __outputResults(self, customers, agents):
+        
+        customersDf = pd.DataFrame.from_records([customer.to_dict() for customer in customers])
+        agentsDf = pd.DataFrame.from_records([agent.to_dict() for agent in agents])
+
+        # Create a Pandas Excel writer using Xlsxwriter as the engine.
+        writer = pd.ExcelWriter('output_results.xlsx', engine='xlsxwriter')
+
+        # Write each dataframe to a different worksheet.
+        customersDf.to_excel(writer, sheet_name='Customers', index=True)
+        agentsDf.to_excel(writer, sheet_name='Agents', index=True)
+
+        # Close the Pandas Excel writer and output the Excel file.
+        writer.save()
+
     def createSimulation(self):
         call_back_customers = []
 
         agents = list(self.__createAgent())
+        customers = list(self.__createCustomer())
 
-        for _ in range(self.noOfCustomers):
-            customers = self.__createCustomer()
-            current_customer = next(customers)
-            matching_agents = self.__match(current_customer, agents)
+        for customer in customers:
+            
+            # randomly sleep under 30 miliseconds between each calls.
+            #sleepTime = np.random.randint(low=0, high=30, size=1, dtype=int)[0]
+            #time.sleep(sleepTime/1000)
+
+            # current_customer = next(customers)
+            matching_agents = self.__match(customer, agents)
             #print(matching_agents)
             
             if len(matching_agents) > 1: # if there more than 1 matching agent, randomly select one
@@ -73,19 +96,32 @@ class CallCenter:
                 random_timeout = np.random.randint(low=50, high=300, size=1, dtype=int)[0]
 
                 selected_agent = matching_agents[random_number]
-                # if the current timestamp of the agent is less than timestamp now in epoch format, the agent 
-                if selected_agent.timestamp < int(round(time.time() * 1000)) and selected_agent.timestamp > 0:
+
+                # Increment number of calls this agent receives by 1.
+                selected_agent.callReceived += 1
+                
+                # if the current timestamp of the agent is less than timestamp now in epoch format
+                # the agent is busy, voicemail will be left.
+                if selected_agent.timeoutTimestamp < int(round(time.time() * 1000)) and selected_agent.timeoutTimestamp > 0:
                     print('agent is busy')
-                    call_back_customers.append(current_customer)
+                    selected_agent.voiceMailLeft += 1 
+                    call_back_customers.append(customer)
                 else:
                 # set the timeout of this agent
-                    selected_agent.timestamp = int(round(time.time() * 1000)) + random_timeout
+                    selected_agent.timeoutTimestamp = int(round(time.time() * 1000)) + random_timeout
+                    
 
         print(call_back_customers)
+
         # calculate agent utilization
-        agentUtilized = len(list(filter(lambda agent: agent.timestamp != 0, agents)))
-        agentUtilization = agentUtilized/len(agents) * 100
+        agentUtilized = list(filter(lambda agent: agent.timeoutTimestamp != 0, agents))
+        agentUtilization = len(agentUtilized)/len(agents) * 100
         print('Agent Utilization: %s %%' %agentUtilization)
+
+        # Output the results into an Excel file
+        self.__outputResults(customers, agents)
+
+
 
 
 noOfCustomers = 1000
