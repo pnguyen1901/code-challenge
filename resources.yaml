@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+    name: callcenter
+    namespace: default
+    labels:
+        app: callcenter
+spec:
+    replicas: 1
+    selector:
+        matchLabels:
+            app: callcenter
+    strategy:
+        type: RollingUpdate
+    template:
+        metadata:
+            labels:
+                app: callcenter
+        spec:
+            affinity:
+                nodeAffinity:
+                    requiredDuringSchedulingIgnoredDuringExecution:
+                        nodeSelectorTerms:
+                        -   matchExpressions:
+                            - key: hostname
+                                operator: Equal
+                                values:
+                                - docker-desktop
+            containers:
+            -   name: callcenter
+                image: everquote-callcenter
+                imagePullPolicy: always
+                ports:
+                -   containerPort: 5000
+                    name: defaultPort
+            restartPolicy: Always
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+    name: callcenter
+    namespace: default
+spec:
+    selector:
+        app: callcenter
+    ports:

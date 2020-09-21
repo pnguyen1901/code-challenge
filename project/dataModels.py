@@ -8,6 +8,7 @@ class Customer:
         self.numberOfCars = numberOfCars
         self.housingStatus = housingStatus
         self.householdIncome = householdIncome
+        self.callReceived = 0
 
     # special method __repr__() to display data associated with object
     def __repr__(self):
@@ -37,7 +38,8 @@ class Customer:
             'number of kids': self.numberOfKids, 
             'number of cars': self.numberOfCars, 
             'housing status': self.housingStatus,
-            'household income': self.householdIncome
+            'household income': self.householdIncome,
+            'call received': self.callReceived
         }
 
 
