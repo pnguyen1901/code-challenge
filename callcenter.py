@@ -1,4 +1,4 @@
-from project.dataModels import Agent, Customer
+from dataModels import Agent, Customer
 import time
 import numpy as np
 from faker import Faker

@@ -21,5 +21,4 @@ COPY . /app
 RUN useradd appuser && chown -R appuser /app
 USER appuser
 
-CMD ["python", "/app/project/callcenter.py"]
-#CMD ["gunicorn", "--bind", "0.0.0.0:5000", "run:app"]
+CMD ["python", "/app/run.py"]
