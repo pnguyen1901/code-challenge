@@ -8,6 +8,7 @@ class Customer:
         self.numberOfCars = numberOfCars
         self.housingStatus = housingStatus
         self.householdIncome = householdIncome
+        self.callReceived = 0
 
     # special method __repr__() to display data associated with object
     def __repr__(self):
@@ -37,7 +38,8 @@ class Customer:
             'number of kids': self.numberOfKids, 
             'number of cars': self.numberOfCars, 
             'housing status': self.housingStatus,
-            'household income': self.householdIncome
+            'household income': self.householdIncome,
+            'call received': self.callReceived
         }
 
 
@@ -60,6 +62,7 @@ class Agent:
             state: {},
             housing status: {},
             household income: {},
+            timeout timestamp: {},
             call received: {},
             voicemail left: {}
         '''
@@ -67,6 +70,7 @@ class Agent:
                 self.state,\
                 self.housingStatus,\
                 self.householdIncome,\
+                self.timeoutTimestamp,\
                 self.callReceived,\
                 self.voiceMailLeft\
             ))

@@ -1,4 +1,4 @@
-from dataModels import Agent, Customer
+from .dataModels import Agent, Customer
 import time
 import numpy as np
 from faker import Faker
@@ -12,7 +12,7 @@ class CallCenter:
         self.noOfCustomers = noOfCustomers
         self.noOfAgents = noOfAgents
         self.fake_data = Faker()
-    
+        self.statesFilePath = 'assets/listOf50States.txt'
 
     @staticmethod
     def __match(customer, agents):
@@ -20,9 +20,17 @@ class CallCenter:
         return list(filter(lambda agent: agent.age[0] <= customer.age and agent.age[1] >= customer.age, agents))
 
 
+    @staticmethod
+    def __returnCustomerVoicemail(customer):
+        customerAvailable = False
+
+        while customerAvailable == False:
+            customer.callReceived += 1
+            customerAvailable = np.random.choice([True, False], size=1, p=[0.2, 0.8])[0]
+
     def __createCustomer(self):
 
-        f = open('listOf50States.txt', 'r')
+        f = open(self.statesFilePath, 'r')
         # Remove all whitespace characters and split the string into a list of US states
         states = f.read().replace(' ', '').split(',')
         housingStatus = ('rent', 'own')
@@ -43,7 +51,7 @@ class CallCenter:
 
     def __createAgent(self):
 
-        f = open('listOf50States.txt', 'r')
+        f = open(self.statesFilePath, 'r')
         # Remove all whitespace characters and split the string into a list of US states
         states = f.read().replace(' ', '').split(',')
         housingStatus = ('rent', 'own')
@@ -65,7 +73,7 @@ class CallCenter:
         agentsDf = pd.DataFrame.from_records([agent.to_dict() for agent in agents])
 
         # Create a Pandas Excel writer using Xlsxwriter as the engine.
-        writer = pd.ExcelWriter('output_results.xlsx', engine='xlsxwriter')
+        writer = pd.ExcelWriter('output/output_results.xlsx', engine='xlsxwriter')
 
         # Write each dataframe to a different worksheet.
         customersDf.to_excel(writer, sheet_name='Customers', index=True)
@@ -73,22 +81,16 @@ class CallCenter:
 
         # Close the Pandas Excel writer and output the Excel file.
         writer.save()
+    
 
     def createSimulation(self):
-        call_back_customers = []
 
         agents = list(self.__createAgent())
         customers = list(self.__createCustomer())
 
         for customer in customers:
             
-            # randomly sleep under 30 miliseconds between each calls.
-            #sleepTime = np.random.randint(low=0, high=30, size=1, dtype=int)[0]
-            #time.sleep(sleepTime/1000)
-
-            # current_customer = next(customers)
             matching_agents = self.__match(customer, agents)
-            #print(matching_agents)
             
             if len(matching_agents) > 1: # if there more than 1 matching agent, randomly select one
                 random_number = np.random.randint(low=0, high=len(matching_agents)-1, size=1,dtype=int)[0]
@@ -104,14 +106,16 @@ class CallCenter:
                 # the agent is busy, voicemail will be left.
                 if selected_agent.timeoutTimestamp < int(round(time.time() * 1000)) and selected_agent.timeoutTimestamp > 0:
                     print('agent is busy')
-                    selected_agent.voiceMailLeft += 1 
-                    call_back_customers.append(customer)
+                    selected_agent.voiceMailLeft += 1
+                    self.__returnCustomerVoicemail(customer)
+                    #call_back_customers.append(customer)
                 else:
                 # set the timeout of this agent
                     selected_agent.timeoutTimestamp = int(round(time.time() * 1000)) + random_timeout
                     
-
-        print(call_back_customers)
+            # randomly sleep under 30 miliseconds between each calls.
+            sleepTime = np.random.randint(low=0, high=30, size=1, dtype=int)[0]
+            time.sleep(sleepTime/1000)
 
         # calculate agent utilization
         agentUtilized = list(filter(lambda agent: agent.timeoutTimestamp != 0, agents))
@@ -120,15 +124,6 @@ class CallCenter:
 
         # Output the results into an Excel file
         self.__outputResults(customers, agents)
-
-
-
-
-noOfCustomers = 1000
-noOfAgents = 20
-
-newSimulation = CallCenter(noOfCustomers, noOfAgents)
-newSimulation.createSimulation()
 
 
 '''
