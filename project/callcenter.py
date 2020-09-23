@@ -1,4 +1,4 @@
-from dataModels import Agent, Customer
+from .dataModels import Agent, Customer
 import time
 import numpy as np
 from faker import Faker
@@ -12,7 +12,7 @@ class CallCenter:
         self.noOfCustomers = noOfCustomers
         self.noOfAgents = noOfAgents
         self.fake_data = Faker()
-    
+        self.statesFilePath = 'assets/listOf50States.txt'
 
     @staticmethod
     def __match(customer, agents):
@@ -30,7 +30,7 @@ class CallCenter:
 
     def __createCustomer(self):
 
-        f = open('listOf50States.txt', 'r')
+        f = open(self.statesFilePath, 'r')
         # Remove all whitespace characters and split the string into a list of US states
         states = f.read().replace(' ', '').split(',')
         housingStatus = ('rent', 'own')
@@ -51,7 +51,7 @@ class CallCenter:
 
     def __createAgent(self):
 
-        f = open('listOf50States.txt', 'r')
+        f = open(self.statesFilePath, 'r')
         # Remove all whitespace characters and split the string into a list of US states
         states = f.read().replace(' ', '').split(',')
         housingStatus = ('rent', 'own')
@@ -73,7 +73,7 @@ class CallCenter:
         agentsDf = pd.DataFrame.from_records([agent.to_dict() for agent in agents])
 
         # Create a Pandas Excel writer using Xlsxwriter as the engine.
-        writer = pd.ExcelWriter('output_results.xlsx', engine='xlsxwriter')
+        writer = pd.ExcelWriter('output/output_results.xlsx', engine='xlsxwriter')
 
         # Write each dataframe to a different worksheet.
         customersDf.to_excel(writer, sheet_name='Customers', index=True)

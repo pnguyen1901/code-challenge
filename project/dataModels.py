@@ -62,6 +62,7 @@ class Agent:
             state: {},
             housing status: {},
             household income: {},
+            timeout timestamp: {},
             call received: {},
             voicemail left: {}
         '''
@@ -69,6 +70,7 @@ class Agent:
                 self.state,\
                 self.housingStatus,\
                 self.householdIncome,\
+                self.timeoutTimestamp,\
                 self.callReceived,\
                 self.voiceMailLeft\
             ))
