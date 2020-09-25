@@ -1,7 +1,7 @@
 import pytest
 from project.dataModels import Agent
 
-@pytest.fixture(scope="class")
+@pytest.fixture
 def agent():
   return Agent(
     40,

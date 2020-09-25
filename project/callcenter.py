@@ -44,7 +44,7 @@ class CallCenter:
                     self.fake_data.random_digit(),\
                     self.fake_data.random_element(elements=housingStatus),\
                     np.random.randint(25000, 200000, size=1, dtype=int)[0]
-                    )
+                )
             
             yield customer
 
@@ -79,9 +79,21 @@ class CallCenter:
         customersDf.to_excel(writer, sheet_name='Customers', index=True)
         agentsDf.to_excel(writer, sheet_name='Agents', index=True)
 
+        # Generate the Reports sheet
+        workbook = writer.book
+        worksheet = workbook.add_worksheet('Reports')
+        writer.sheets['Reports'] = worksheet
+        
+        customerReportsDf = customersDf['call received']
+        customerReportsDf.name = 'Customers'
+        customerReportsDf.to_excel(writer, sheet_name='Reports', index=True, start_col=0, start_row=1)
+
+        agentReportsDf = agentsDf[['call received', 'voicemail left']]
+        agentReportsDf.name = 'Agents'
+        agentReportsDf.to_excel(writer, sheet_name='Reports', index=True, start_col=0, start_row=customerReportsDf.shape[0] + 4)
         # Close the Pandas Excel writer and output the Excel file.
         writer.save()
-    
+
 
     def createSimulation(self):
 
@@ -102,9 +114,9 @@ class CallCenter:
                 # Increment number of calls this agent receives by 1.
                 selected_agent.callReceived += 1
                 
-                # if the current timestamp of the agent is less than timestamp now in epoch format
+                # if the timeout timestamp of the agent is greater than the current time in epoch format 
                 # the agent is busy, voicemail will be left.
-                if selected_agent.timeoutTimestamp < int(round(time.time() * 1000)) and selected_agent.timeoutTimestamp > 0:
+                if selected_agent.timeoutTimestamp > int(round(time.time() * 1000)):
                     print('agent is busy')
                     selected_agent.voiceMailLeft += 1
                     self.__returnCustomerVoicemail(customer)
@@ -136,4 +148,16 @@ class CallCenter:
     use Random module to generate a random number
     pick that agent
     reset the timeout based on 50 and 300 miliseconds 
+
+    Are the attributes dynamically given as a part of the input for the program or agent is selected if he/she matches
+    all the attributes? 
+'''
+
+
+'''
+    voice mail process. need to watch the list of
+    1.  does agent need to return the voicemail right after they become available again?
+    2.  is agent busy and not available to receive the call when they are returning the call? and will they have 
+        the same random timeout between 50 -300 miliseconds?
+    3.  
 '''
