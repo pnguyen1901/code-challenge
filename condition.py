@@ -20,7 +20,6 @@ def consumer(agent, condition):
         condition.wait()
         logging.debug('returning customer call')
         agent.voicemail.pop(0)
-        print(agent)
 
 def producer(agent, condition):
     logging.debug('acquiring lock. Agent is busy serving customer')
@@ -37,6 +36,7 @@ if __name__ == '__main__':
     for _ in range(2):
       condition = threading.Condition()
       agent = agents[_]
+      agent.voicemail.append(23)
       cs1 = threading.Thread(target=consumer, args=(agent, condition,))
       #cs2 = threading.Thread(name='consumer2', target=consumer, args=(condition,))
       pd1 = threading.Thread(target=producer, args=(agent, condition,))

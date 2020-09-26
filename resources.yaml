@@ -1,13 +1,22 @@
 # create a new namespace. This will allow us to enforce specific rules, policy on this subsection
 # of the cluster while enabling multiple teams to share the same infrastructure.
-# apiVersion: v1
-# kind: Namespace
-# metadata:
-#   name: everquote
-#   labels:
-#     name: everquote
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: everquote
+  labels:
+    name: everquote
 
-# ---
+---
+
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: everquote
+spec:
+  
+
+---
 
 apiVersion: apps/v1
 kind: Deployment

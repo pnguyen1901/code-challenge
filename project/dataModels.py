@@ -67,16 +67,8 @@ class Agent:
         self.timeoutTimestamp = 0
         self.lock = threading.Lock()
         self.callReceived = 0
+        self.voicemailLeft = 0
         self.voiceMails = []
-
-    def serveCustomer(self, timeout):
-        logging.debug('Agent is busy')
-        self.lock.acquire()
-        try:
-            time.sleep(50/1000)
-        finally:
-            self.lock.release()
-        logging.debug('Agent is now available')
 
     # special method __repr__() to display data associated with object
     def __repr__(self):
@@ -110,5 +102,6 @@ class Agent:
             'housing status': self.housingStatus,
             'household income': self.householdIncome,
             'call received': self.callReceived,
+            'voicemail left': self.voicemailLeft,
             'voicemails': self.voiceMails
         }
