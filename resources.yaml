@@ -52,7 +52,7 @@ spec:
       containers:
       - name: callcenter
         image: everquote:1.0
-        imagePullPolicy: Never
+        imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 5000
       #   volumeMounts:

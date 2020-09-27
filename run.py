@@ -1,14 +1,14 @@
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
 from project.callcenter import CallCenter
 import traceback
 
 app = Flask(__name__)
 
-@app.route('/api/v1/run_simulation', methods=['GET','POST'])
+@app.route('/api/v1/run_simulation', methods=['POST'])
 def run_simulation():
   try:
-    noOfCustomers = 1000
-    noOfAgents = 20
+    noOfCustomers = int(request.form.get('noOfCustomers', default=1000))
+    noOfAgents = int(request.form.get('noOfAgents', default=20))
 
     newSimulation = CallCenter(noOfCustomers, noOfAgents)
     newSimulation.createSimulation()

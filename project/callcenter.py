@@ -25,10 +25,18 @@ class CallCenter:
         self.fake_data = Faker()
         self.statesFilePath = 'assets/listOf50States.txt'
 
+
     @staticmethod
     def __match(customer, agents):
+        def matchAttr(agent):
+            if (agent.age[0] <= customer.age and agent.age[1] >= customer.age) and \
+                (agent.householdIncome[0] <= customer.householdIncome and agent.householdIncome[1] >= customer.householdIncome) and \
+                customer.state in agent.state:
+                return True
+            else:
+                return False
 
-        return list(filter(lambda agent: agent.age[0] <= customer.age and agent.age[1] >= customer.age, agents))
+        return list(filter(lambda agent: matchAttr(agent), agents))
     
 
     def __createCustomer(self):
@@ -70,32 +78,21 @@ class CallCenter:
             
             yield agent
 
-    def returnVoicemail(self, agent, customers, condition):
-        with condition:
-            logging.debug('waiting to return customer call')
-            condition.wait()
-            while len(agent.voiceMails) > 0:
-                logging.debug('returning customer call')
-                customerAvailable = np.random.choice([True, False], size=1, p=[0.2, 0.8])[0]
-                customer = list(filter(lambda customer: customer.id == agent.voiceMails[0]['customerID'], customers))[0]
-                customer.callReceived += 1
-                if customerAvailable:
-                    agent.voiceMails.pop(0)
-                    logging.debug('customer is available. Agent is now busy talking to the customer')
-                    # If the customer is available to answer the returning phone call,
-                    # assign new timeout timestamp for this agent as the agent will be busy talking to the customer
-                    agent.timeoutTimestamp = int(round(time.time() * 1000)) + 50
+    def returnVoicemail(self, voicemail, agents, customers):
+        customerAvailable = np.random.choice([True, False], size=1, p=[0.2, 0.8])[0]
+        customer = list(filter(lambda customer: customer.id == voicemail['customerID'], customers))[0]
+        agent = list(filter(lambda agent: agent.id == voicemail['agentID'], agents))[0]
+        customer.callReceived += 1
+        if customerAvailable and agent.timeoutTimestamp < int(round(time.time() * 1000)):
+            logging.debug('Agent %s is available to return the voicemail and customer %s is available' %(agent.id, customer.id))
+            # If the customer is available to answer the returning phone call,
+            # assign new timeout timestamp for this agent as the agent will be busy talking to the customer
+            agent.timeoutTimestamp = int(round(time.time() * 1000)) + 50
+            logging.debug('Agent %s is now busy talking to the customer' %agent.id)
+            return True
+        else:
+            return False
 
-    @staticmethod
-    def serveCustomer(agent, timeout, condition):
-        '''
-            timeout is a random number between 50 - 300.
-        '''
-        logging.debug('Agent is busy serving customer')
-        with condition:
-            time.sleep(timeout/1000) # convert to miliseconds.
-            logging.debug('Agent is available now')
-            condition.notify()
 
     def __outputResults(self, customers, agents):
         
@@ -105,7 +102,7 @@ class CallCenter:
 
         # Prepare agent dataframe for export
         agentsDf = pd.DataFrame.from_records([agent.to_dict() for agent in agents])
-        agentsExport = agentsDf.drop(columns=['call received', 'voicemail left', 'voicemails'])
+        agentsExport = agentsDf.drop(columns=['call received', 'voicemail left'])
 
         # Create a Pandas Excel writer using Xlsxwriter as the engine.
         writer = pd.ExcelWriter('output/output_results.xlsx', engine='xlsxwriter')
@@ -122,8 +119,7 @@ class CallCenter:
         customerReportsDf = customersDf['call received']
         customerReportsDf.to_excel(writer, sheet_name='Reports', index=True, index_label='customer_id', startcol=0, startrow=0)
 
-        agentReportsDf = agentsDf[['call received', 'voicemail left', 'voicemails']]
-        print(customerReportsDf.shape)
+        agentReportsDf = agentsDf[['call received', 'voicemail left']]
         agentReportsDf.to_excel(writer, sheet_name='Reports', index=True, index_label='agent_id', startcol=5, startrow=0)
         # Close the Pandas Excel writer and output the Excel file.
         writer.save()
@@ -133,6 +129,7 @@ class CallCenter:
 
         agents = list(self.__createAgent())
         customers = list(self.__createCustomer())
+        voicemails = []
 
         # agentWithVoicemails = []
 
@@ -157,32 +154,37 @@ class CallCenter:
                     
                     # Increment the number of voicemail left for this agent by 1 and append the new customer into
                     # the list of customer that they need to call back.
-                    selected_agent.voiceMails.append({
-                            'customerID': customer.id,
-                            'phoneNumber': customer.phoneNumber
-                        })
                     
+                    voicemails.append({
+                        'agentID': selected_agent.id,
+                        'customerID': customer.id,
+                        'phoneNumber': customer.phoneNumber
+                    })
+
                     selected_agent.voicemailLeft += 1
-
-                    # setup a new thread to watch for the agent timeout and return customer's call once the agent becomes available again.
-                    condition = threading.Condition()
-                    cs = threading.Thread(target=self.returnVoicemail, args=(selected_agent, customers, condition,))
-                    pd = threading.Thread(target=self.serveCustomer, args=(selected_agent, random_timeout, condition,))
-
-                    cs.start()
-                    time.sleep(1/1000)
-                    pd.start()
-                    
-                    cs.join()
-                    pd.join()
 
                 else:
                 # set the timeout of this agent
                     selected_agent.timeoutTimestamp = int(round(time.time() * 1000)) + random_timeout
             
+            # Check the voicemail inbox to make sure voice mail is being returned as soon as possible
+            logging.debug('Checking and returning voicemails')
+            for i, voicemail in enumerate(voicemails, start=0):
+                voicemail_returned = self.returnVoicemail(voicemail, agents, customers)
+                if voicemail_returned:
+                    voicemails.pop(i)
+
             # randomly sleep under 30 miliseconds between each calls.
             sleepTime = np.random.randint(low=0, high=30, size=1, dtype=int)[0]
             time.sleep(sleepTime/1000)
+
+        # Make sure that all voice mails are returned and all customers are reached
+        logging.debug('Checking voicemails again')
+        while len(voicemails) > 0:
+            for i, voicemail in enumerate(voicemails, start=0):
+                voicemail_returned = self.returnVoicemail(voicemail, agents, customers)
+                if voicemail_returned:
+                    voicemails.pop(i)
 
         # calculate agent utilization
         agentUtilized = list(filter(lambda agent: agent.timeoutTimestamp != 0, agents))

@@ -68,7 +68,6 @@ class Agent:
         self.lock = threading.Lock()
         self.callReceived = 0
         self.voicemailLeft = 0
-        self.voiceMails = []
 
     # special method __repr__() to display data associated with object
     def __repr__(self):
@@ -80,7 +79,7 @@ class Agent:
             household income: {},
             timeout timestamp: {},
             call received: {},
-            voicemails: {}
+            voicemails left: {}
         '''
         .format(
                 self.id,\
@@ -90,7 +89,7 @@ class Agent:
                 self.householdIncome,\
                 self.timeoutTimestamp,\
                 self.callReceived,\
-                self.voiceMails\
+                self.voicemailLeft\
             ))
 
     # method to return a dictionary representation of this class
@@ -103,5 +102,4 @@ class Agent:
             'household income': self.householdIncome,
             'call received': self.callReceived,
             'voicemail left': self.voicemailLeft,
-            'voicemails': self.voiceMails
         }

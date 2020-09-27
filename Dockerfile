@@ -21,4 +21,10 @@ COPY . /app
 RUN useradd appuser && chown -R appuser /app
 USER appuser
 
+# Set env variables.
+ENV age_low=18
+ENV age_high=90
+ENV income_low=25000
+ENV income_high=200000
+
 CMD ["python", "/app/run.py"]
