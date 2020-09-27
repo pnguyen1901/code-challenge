@@ -195,6 +195,8 @@ class CallCenter:
 
         #Output the results into an Excel file
         self.__outputResults(customers, agents)
+        
+        time.sleep(240)
 
 
 '''

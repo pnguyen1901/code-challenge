@@ -8,15 +8,20 @@ metadata:
     name: everquote
 
 ---
+# when we spin this up, if it didn't find the matching volume, it will automatically
+# create one for the pod
+# apiVersion: v1
+# kind: PersistentVolumeClaim
+# metadata:
+#   name: everquote-claim
+# spec:
+#   accessModes:
+#     - ReadWriteOnce 
+#   resources:
+#     requests:
+#       storage: 1Gi
 
-apiVersion: v1
-kind: PersistentVolume
-metadata:
-  name: everquote
-spec:
-  
-
----
+# ---
 
 apiVersion: apps/v1
 kind: Deployment
@@ -43,21 +48,20 @@ spec:
                 - key: kubernetes.io/hostname
                   operator: In
                   values:
-                  - docker-desktop
+                  - minikube
       containers:
       - name: callcenter
-        image: everquote
-        imagePullPolicy: IfNotPresent
+        image: everquote:1.0
+        imagePullPolicy: Never
         ports:
         - containerPort: 5000
-        volumeMounts:
-        - name: output
-          mountPath: /app/output
-      volumes:
-      - name: output
-        hostPath:
-          path: /Users/phatnguyen/Documents
-      restartPolicy: Always
+      #   volumeMounts:
+      #   - name: callcenter-storage
+      #     mountPath: /app/output
+      # volumes:
+      # - name: callcenter-storage
+      #   persistentVolumeClaim:
+      #     claimName: everquote-claim
 
 ---
 
@@ -69,9 +73,9 @@ metadata:
 spec:
   selector: # the service is going to scan the cluster for pod with app=callcenter label.
     app: callcenter
+  type: NodePort
   ports:
   - protocol: TCP
     port: 5000 # port exposed to other pods within the cluster.
     targetPort: 5000 # this is where the service is going to the request to and also where the container needs to listen on.
-  externalIPs:
-    - 127.0.0.1
+    nodePort: 30007
