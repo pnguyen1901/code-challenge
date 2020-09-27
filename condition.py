@@ -47,13 +47,14 @@ if __name__ == '__main__':
       #cs2.start()
       #time.sleep(2)
       pd1.start()
-      cs1.join()
-      pd1.join()
+      # cs1.join()
+      # pd1.join()
+      # print('main thread continues')
       #time.sleep(2)
       #pd2.start()
 
-    # main_thread = threading.current_thread()
-    # for t in threading.enumerate():
-    #   if t is not main_thread:
-    #     t.join()
+    main_thread = threading.current_thread()
+    for t in threading.enumerate():
+      if t is not main_thread:
+        t.join()
     print(agents)

@@ -4,7 +4,6 @@ import traceback
 
 app = Flask(__name__)
 
-
 @app.route('/api/v1/run_simulation', methods=['GET','POST'])
 def run_simulation():
   try:
@@ -15,14 +14,14 @@ def run_simulation():
     newSimulation.createSimulation()
 
     return jsonify({
-      "message": "simuation finished running"
+      "message": "simulation finished running"
     })
   except Exception:
     error = traceback.format_exc(limit=None, chain=True)
     
     return jsonify({
       "message": error
-    })
+    }), 500
 
 if __name__ == '__main__':
   app.run(debug=True)
