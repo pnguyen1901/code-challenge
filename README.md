@@ -41,6 +41,11 @@ If you don't pass the parameters, the simulation will run with the default value
 Install [docker desktop](https://www.docker.com/products/docker-desktop) and [kubernetes - minikube](https://kubernetes.io/docs/tasks/tools/install-minikube/) and run:
 
 ```shell
+# Minikube is a VM so you need to build the Docker image in the VM not in your localhost.
+# So first, you need to get an interactive shell in the VM by opening up terminal and run.
+eval $(minikube docker-env)
+
+# Now you can build and deploy as normal.
 docker build -t everquote:1.0 .
 kubectl apply -f resources.yaml
 ```
