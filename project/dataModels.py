@@ -28,7 +28,8 @@ class Customer:
             number of kids: {}, 
             number of cars: {}, 
             housing status: {},
-            household income: {}'''
+            household income: {},
+            call received: {}'''
         .format(
                 self.id,\
                 self.age,\
@@ -37,7 +38,8 @@ class Customer:
                 self.numberOfKids,\
                 self.numberOfCars,\
                 self.housingStatus,\
-                self.householdIncome\
+                self.householdIncome,\
+                self.callReceived
             ))
 
     # method to return a dictionary representation of this class
@@ -65,7 +67,6 @@ class Agent:
         self.housingStatus = housingStatus
         self.householdIncome = householdIncome
         self.timeoutTimestamp = 0
-        self.lock = threading.Lock()
         self.callReceived = 0
         self.voicemailLeft = 0
 
