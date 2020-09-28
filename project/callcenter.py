@@ -48,14 +48,14 @@ class CallCenter:
 
         for _ in range(0,self.noOfCustomers):
             customer = Customer(
-                    _,\
-                    np.random.randint(ageLow,ageHigh, size=1, dtype=int)[0],\
-                    self.fake_data.random_element(elements=states),\
-                    self.fake_data.phone_number(),\
-                    self.fake_data.random_digit(),\
-                    self.fake_data.random_digit(),\
-                    self.fake_data.random_element(elements=housingStatus),\
-                    np.random.randint(incomeLow, incomeHigh, size=1, dtype=int)[0]
+                    id=_,\
+                    age=np.random.randint(ageLow,ageHigh, size=1, dtype=int)[0],\
+                    state=self.fake_data.random_element(elements=states),\
+                    phoneNumber=self.fake_data.phone_number(),\
+                    numberOfKids=self.fake_data.random_digit(),\
+                    numberOfCars=self.fake_data.random_digit(),\
+                    housingStatus=self.fake_data.random_element(elements=housingStatus),\
+                    householdIncome=np.random.randint(incomeLow, incomeHigh, size=1, dtype=int)[0]
                 )
             
             yield customer
@@ -69,16 +69,16 @@ class CallCenter:
 
         for _ in range(0,self.noOfAgents):
             agent = Agent(
-                    _,\
-                    sorted(np.random.randint(ageLow,ageHigh, size=2, dtype=int)),\
-                    self.fake_data.random_elements(elements=states),\
-                    self.fake_data.random_element(elements=housingStatus),\
-                    sorted(np.random.randint(incomeLow, incomeHigh, size=2, dtype=int))
+                    id=_,\
+                    age=sorted(np.random.randint(ageLow,ageHigh, size=2, dtype=int)),\
+                    state=self.fake_data.random_elements(elements=states),\
+                    housingStatus=self.fake_data.random_element(elements=housingStatus),\
+                    householdIncome=sorted(np.random.randint(incomeLow, incomeHigh, size=2, dtype=int))
                     )
             
             yield agent
 
-    def returnVoicemail(self, voicemail, agents, customers):
+    def __returnVoicemail(self, voicemail, agents, customers):
         customerAvailable = np.random.choice([True, False], size=1, p=[0.2, 0.8])[0]
         customer = list(filter(lambda customer: customer.id == voicemail['customerID'], customers))[0]
         agent = list(filter(lambda agent: agent.id == voicemail['agentID'], agents))[0]
@@ -131,8 +131,6 @@ class CallCenter:
         customers = list(self.__createCustomer())
         voicemails = []
 
-        # agentWithVoicemails = []
-
         for customer in customers:
             
             matching_agents = self.__match(customer, agents)
@@ -170,7 +168,7 @@ class CallCenter:
             # Check the voicemail inbox to make sure voice mail is being returned as soon as possible
             logging.debug('Checking and returning voicemails')
             for i, voicemail in enumerate(voicemails, start=0):
-                voicemail_returned = self.returnVoicemail(voicemail, agents, customers)
+                voicemail_returned = self.__returnVoicemail(voicemail, agents, customers)
                 if voicemail_returned:
                     voicemails.pop(i)
 
@@ -182,7 +180,7 @@ class CallCenter:
         logging.debug('Checking voicemails again')
         while len(voicemails) > 0:
             for i, voicemail in enumerate(voicemails, start=0):
-                voicemail_returned = self.returnVoicemail(voicemail, agents, customers)
+                voicemail_returned = self.__returnVoicemail(voicemail, agents, customers)
                 if voicemail_returned:
                     voicemails.pop(i)
 

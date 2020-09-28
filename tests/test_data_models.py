@@ -1,5 +1,6 @@
 class TestDataModels:
   def test_customer_class(self, customer):
+    assert customer.id == 1
     assert customer.age == 23
     assert customer.state == 'Texas'
     assert customer.phoneNumber == 8323449783
@@ -11,6 +12,7 @@ class TestDataModels:
 
   def test_customer_to_dict(self, customer):
     assert customer.to_dict() == {
+            'id': 1,
             'age': 23, 
             'state': 'Texas',
             'phone number': 8323449783,
@@ -22,18 +24,20 @@ class TestDataModels:
         }
   
   def test_agent_class(self, agent):
-    assert agent.age == 40
-    assert agent.state == 'West Virginia'
+    assert agent.id == 1
+    assert agent.age == [30,40]
+    assert agent.state == ['West Virginia']
     assert agent.housingStatus == 'own'
     assert agent.householdIncome == [40000, 60000]
     assert agent.timeoutTimestamp == 0
     assert agent.callReceived == 0
-    assert agent.voiceMailLeft == 0
+    assert agent.voicemailLeft == 0
 
   def test_agent_to_dict(self, agent):
     assert agent.to_dict() == {
-            'age': 40, 
-            'state': 'West Virginia',
+            'id': 1,
+            'age': [30, 40], 
+            'state': ['West Virginia'],
             'housing status': 'own',
             'household income': [40000, 60000],
             'call received': 0,

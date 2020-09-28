@@ -4,11 +4,12 @@ from project.dataModels import Customer
 @pytest.fixture
 def customer():
   return Customer(
-    23,
-    'Texas',
-    8323449783,
-    2,
-    3,
-    'rent',
-    60000
+    id=1,
+    age=23,
+    state='Texas',
+    phoneNumber=8323449783,
+    numberOfKids=2,
+    numberOfCars=3,
+    housingStatus='rent',
+    householdIncome=60000
   )
