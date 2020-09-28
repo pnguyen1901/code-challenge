@@ -1,5 +1,5 @@
 from glob import glob
-
+import pytest
 
 def refactor(string: str) -> str:
     return string.replace("/", ".").replace("\\", ".").replace(".py", "")

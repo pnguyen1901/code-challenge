@@ -105,6 +105,8 @@ Asset files: list of all 50 stats and images used for README.md
 
 ## Tests
 
+NEED TO MENTION ABOUT THE CONFTEST SETUP
+
 Standalone unit tests run with:
 
 ```shell

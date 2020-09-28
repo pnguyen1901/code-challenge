@@ -29,8 +29,8 @@ class CallCenter:
     @staticmethod
     def __match(customer, agents):
         def matchAttr(agent):
-            if (agent.age[0] <= customer.age and agent.age[1] >= customer.age) and \
-                (agent.householdIncome[0] <= customer.householdIncome and agent.householdIncome[1] >= customer.householdIncome) and \
+            if (agent.age[0] <= customer.age and agent.age[1] >= customer.age) or \
+                (agent.householdIncome[0] <= customer.householdIncome and agent.householdIncome[1] >= customer.householdIncome) or \
                 customer.state in agent.state:
                 return True
             else:
