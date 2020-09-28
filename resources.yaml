@@ -1,11 +1,25 @@
 # create a new namespace. This will allow us to enforce specific rules, policy on this subsection
 # of the cluster while enabling multiple teams to share the same infrastructure.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: everquote
+  labels:
+    name: everquote
+
+---
+# when we spin this up, if it didn't find the matching volume, it will automatically
+# create one for the pod
 # apiVersion: v1
-# kind: Namespace
+# kind: PersistentVolumeClaim
 # metadata:
-#   name: everquote
-#   labels:
-#     name: everquote
+#   name: everquote-claim
+# spec:
+#   accessModes:
+#     - ReadWriteOnce 
+#   resources:
+#     requests:
+#       storage: 1Gi
 
 # ---
 
@@ -34,21 +48,20 @@ spec:
                 - key: kubernetes.io/hostname
                   operator: In
                   values:
-                  - docker-desktop
+                  - minikube
       containers:
       - name: callcenter
-        image: everquote
+        image: everquote:1.0
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 5000
-        volumeMounts:
-        - name: output
-          mountPath: /app/output
-      volumes:
-      - name: output
-        hostPath:
-          path: /Users/phatnguyen/Documents
-      restartPolicy: Always
+      #   volumeMounts:
+      #   - name: callcenter-storage
+      #     mountPath: /app/output
+      # volumes:
+      # - name: callcenter-storage
+      #   persistentVolumeClaim:
+      #     claimName: everquote-claim
 
 ---
 
@@ -60,9 +73,9 @@ metadata:
 spec:
   selector: # the service is going to scan the cluster for pod with app=callcenter label.
     app: callcenter
+  type: NodePort
   ports:
   - protocol: TCP
     port: 5000 # port exposed to other pods within the cluster.
     targetPort: 5000 # this is where the service is going to the request to and also where the container needs to listen on.
-  externalIPs:
-    - 127.0.0.1
+    nodePort: 30007

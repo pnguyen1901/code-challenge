@@ -1,3 +1,4 @@
 *.xlsx
 virtualenv/
-output/
+Dockerfile
+.env

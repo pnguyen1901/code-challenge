@@ -1,7 +1,7 @@
 import pytest
 from project.dataModels import Customer
 
-@pytest.fixture(scope="class")
+@pytest.fixture
 def customer():
   return Customer(
     23,
