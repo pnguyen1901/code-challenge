@@ -95,7 +95,8 @@ All test-related files.
     │   │     └── customer.py
     │   ├── confest.py
     │   ├── test_callcenter.py
-    │   └── test_data_models.py
+    │   ├── test_data_models.py
+    │   └── test_flask_app.py
 
 Asset files: list of all 50 stats and images used for README.md
 
@@ -106,6 +107,12 @@ Asset files: list of all 50 stats and images used for README.md
 ## Tests
 
 Test suites are set up using `pytest` framework. Read more about [`Pytest`](https://pytest.org/en/stable/index.html)
+
+Current test suites cover the following items: 
+- class Customer 
+- class Agent
+- The public interface createSimulation of class CallCenter
+- route /api/v1/run_simulation of the Flask app
 
 Standalone unit tests run with:
 
