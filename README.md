@@ -9,9 +9,8 @@ This app was deployed and tested on **Python 3.7**. Using older and newer versio
 It is recommended that you create a Python virtual env before installing the dependencies to maintain isolation between environments and avoiding dependency clashing.
 
 ```shell
-pip install virtualvenv
 cd ..\
-virtualvenv py3.7
+python3.7 -m venv py3.7
 source py3.7/bin/activate
 ```
 
@@ -79,11 +78,12 @@ Core files to run the program.
 
 This file fires up the Flask server.
 
-├── run.py
+
+    ├── run.py
 
 This file is responsile for Kubernetes deployment.
 
-├── resources.yaml
+    ├── resources.yaml
 
 All test-related files. 
 
@@ -116,5 +116,5 @@ pytest --cov=web/ --ignore=tests/integration tests
 ## Future Enhancements
 
 - Improve the logic of the simulation by leveraging multi-threading to dynamically monitor each agent and return customer's voicemail once they are left.
-- Employ StringIO to allow download the xlsx report file on HTTP request instead of writing to the local directory.
+- Employ StringIO and Response object from flask to allow download the xlsx report file on HTTP request instead of writing to the local directory.
 
