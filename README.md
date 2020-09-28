@@ -105,18 +105,23 @@ Asset files: list of all 50 stats and images used for README.md
 
 ## Tests
 
-NEED TO MENTION ABOUT THE CONFTEST SETUP
+Test suites are set up using `pytest` framework. Read more about [`Pytest`](https://pytest.org/en/stable/index.html)
 
 Standalone unit tests run with:
 
 ```shell
-pip install pytest pytest-cov pytest-flask
-pytest --cov=web/ --ignore=tests/integration tests
+pytest --junitxml=tests/results/output
 ```
+
+conftest.py is created to share fixture functions across test files. The nice thing about conftest.py is you don’t need to import the fixture you want to use in a test, it automatically gets discovered by pytest. Just simply pass the fixure function as a parameter in the test class.
+
+    ├── tests
+    │   └── confest.py
 
 
 ## Future Enhancements
 
 - Improve the logic of the simulation by leveraging multi-threading to dynamically monitor each agent and return customer's voicemail once they are left.
 - Employ StringIO and Response object from flask to allow download the xlsx report file on HTTP request instead of writing to the local directory.
+- Add a CI/CD pipeline to be able to automate unit testing before deploying to Kubernetes cluster.
 
